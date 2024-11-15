@@ -4,7 +4,13 @@
 *寄存器*： 一种特殊的存储器，内核通过APB2总线对寄存器读写，完成输出电平和读取电平的功能。  
 1.寄存器的每一位对应一个引脚输出寄存器写入1输出高电平写入0输入低电平。输入寄存器读取为1就为高电平读取为0就为低电平。  
 *驱动器*： 增加信号驱动力  
-![GPIO位结构](img/GPIO位结构.png)   
+![GPIO位结构](img/GPIO位结构.png)  
+ 对GPIO的初始化   
+ `GPIO_InitTypeDef GPIO_InitStructure;`    
+ `GPIO_InitStructure.GPIO_Pin = GPIO_Pin_x;`  
+ `GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;`   
+ `GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;`  
+ `GPIO_Init(GPIOx, &GPIO_InitStructure);`   
 肖特基触发器改为施密特触发器（翻译错误）作用：对输入电压进行整形。  
 **通用输入输出口**  
 一.八种输入输出模式  
@@ -49,10 +55,23 @@ NVIC优先级分组
 1.抢占优先级：终止当前运行的程序马上执行中断(中断嵌套)。  
 2.响应优先级：运行完当前程序再执行中断(优先排队)。   
 ![NVIC优先级分组](img/NVIC优先级分组.png)  
+初始化NVIC   
+`NVIC_InitTypeDef NVIC_InitStructure;`   
+`NVIC_InitStructure.NVIC_IRQChannel = IRQChannelx;`   
+`NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;`抢占优先级   
+`NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;`中断优先级   
+`NVIC_Init(&NVIC_InitStructure);`  
 ESTI介绍  
 ![ESTI](img/ESTI.png)  
 ESTI基本结构  
-![ESTI基本结构](img/ESTI基本结构.png)  
+![ESTI基本结构](img/ESTI基本结构.png) 
+初始化EXTI   
+`EXTI_InitTypeDef EXTI_InitStructure;`  
+`EXTI_InitStructure.EXTI_Line = EXTI_Linex;`  
+`EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;`  
+`EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;`   
+`EXTI_InitStructure.EXTI_LineCmd = ENABLE;`   
+`EXTI_Init(&EXTI_InitStructure);`
 # 定时器 #
 TIM简介  
 ![TIM简介](img/TIM简介.png)  
@@ -93,7 +112,15 @@ TIM简介
 计数器无预装时序  
 ![计数器无预装时序](img/计数器无预装时序.png)   
 对比:无预装时序时当突然更改自动重装寄存器后若此时计数器寄存器的值已经比更改后的值大计数器寄存器将会一直自增直到FFFF才会再回到零然后再自增到改后的值产生更新。  
-有预装时序时更改自动重装寄存器后自动加载影子寄存器会结束完上一次的自增后在下一个周期更改值才有效。   
+有预装时序时更改自动重装寄存器后自动加载影子寄存器会结束完上一次的自增后在下一个周期更改值才有效。 
+初始化定时器   
+`RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);`打开定时器时钟    
+`TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;`定义定时器结构体  
+`TIM_TimeBaseStructure.TIM_Prescaler = 71;`预分频器   
+`TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;`向上计数   
+`TIM_TimeBaseStructure.TIM_Period = 10000;`自动重装值  
+`TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;`时钟分频  
+`TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);`初始化定时器     
 RCC时钟树  
 ![RCC时钟树](img/RCC时钟树.png)  
 # TIM输出比较 #  
@@ -115,8 +142,23 @@ CCR捕获比较寄存器
 理解为置有效电平就是置高电平,置无效电平就是置低电平  
 PWM基本结构(**重点**)  
 ![](img/PWM基本结构.png)  
+PWM初始化   
+`TIM_OCInitTypeDef TIM_OCInitStructure;`定义输出比较结构体  
+`TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;`PWM1模式   
+`TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;`输出使能    
+`TIM_OCInitStructure.TIM_Pulse = 5000;`脉宽  
+`TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;`高电平有效  
+`TIM_OC1Init(TIM2, &TIM_OCInitStructure);`初始化输出比较     
 参数计算  
 ![](img/参数计算.png)  
+详细解释   
+ARR：自动重装值   
+当计数器达到ARR时产生更新，同时清零计数器  
+PSC：预分频器  
+对输入的时钟进行分频   
+输入时钟频率/(PSC+1) = 输出时钟频率  
+CCR：捕获/比较寄存器   
+当计数器的值等于CCR值时，输出引脚状态改变  
 舵机简介   
 ![](img/舵机简介.png)   
 直流电机及驱动简介   
