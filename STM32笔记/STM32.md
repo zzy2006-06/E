@@ -6,12 +6,13 @@
 *驱动器*： 增加信号驱动力  
 ![GPIO位结构](img/GPIO位结构.png)  
  对GPIO的初始化   
- `GPIO_InitTypeDef GPIO_InitStructure;`    
- `GPIO_InitStructure.GPIO_Pin = GPIO_Pin_x;`  
- `GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;`   
- `GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;`  
+ `RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOx, ENABLE);`打开GPIO时钟  
+ `GPIO_InitTypeDef GPIO_InitStructure;`定义GPIO结构体    
+ `GPIO_InitStructure.GPIO_Pin = GPIO_Pin_x;`选择引脚  
+ `GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;`设置输出模式   
+ `GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;`设置频率  
  `GPIO_Init(GPIOx, &GPIO_InitStructure);`   
-肖特基触发器改为施密特触发器（翻译错误）作用：对输入电压进行整形。  
+肖特基触发器改为施密特触发器（翻译错误）作用：对输入电压进行整形。  jegou
 **通用输入输出口**  
 一.八种输入输出模式  
 ![GPIO模式](img/八种输入输出模式.png)  
@@ -56,7 +57,7 @@ NVIC优先级分组
 2.响应优先级：运行完当前程序再执行中断(优先排队)。   
 ![NVIC优先级分组](img/NVIC优先级分组.png)  
 初始化NVIC   
-`NVIC_InitTypeDef NVIC_InitStructure;`   
+`NVIC_InitTypeDef NVIC_InitStructure;`定义NVIC结构体   
 `NVIC_InitStructure.NVIC_IRQChannel = IRQChannelx;`   
 `NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;`抢占优先级   
 `NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;`中断优先级   
@@ -66,11 +67,11 @@ ESTI介绍
 ESTI基本结构  
 ![ESTI基本结构](img/ESTI基本结构.png) 
 初始化EXTI   
-`EXTI_InitTypeDef EXTI_InitStructure;`  
+`EXTI_InitTypeDef EXTI_InitStructure;`定义EXTI结构体  
 `EXTI_InitStructure.EXTI_Line = EXTI_Linex;`  
 `EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;`  
 `EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising;`   
-`EXTI_InitStructure.EXTI_LineCmd = ENABLE;`   
+`EXTI_InitStructure.EXTI_LineCmd = ENABLE;`启用EXTI   
 `EXTI_Init(&EXTI_InitStructure);`
 # 定时器 #
 TIM简介  
@@ -163,5 +164,109 @@ CCR：捕获/比较寄存器
 ![](img/舵机简介.png)   
 直流电机及驱动简介   
 ![](img/直流电机.png)  
+# TIM输入捕获 #
+输入捕获简介   
+![输入捕获](img/输入捕获.png)   
+输入捕获初始化   
+`TIM_ICInitTypeDef TIM_ICInitStructure;`定义输入捕获结构体   
+`TIM_ICInitStructure.TIM_Channel = TIM_Channel_1;`输入捕获通道   
+`TIM_ICInitStructure.TIM_ICPolarity = TIM_ICPolarity_Rising;`上升沿有效   
+`TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;`直接TI模式   
+`TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;`输入捕获分频   
+`TIM_ICInitStructure.TIM_ICFilter = 0x0;`输入捕获滤波器   
+`TIM_ICInit(TIM3, &TIM_ICInitStructure);`初始化输入捕获   
+频率测量  
+![频率测量](img/频率测量.png)   
+输入捕获基本结构   
+![输入捕获基本结构](img/输入捕获基本结构.png)   
+配置从模式为Reset      
+`TIM_SelectInputTrigger(TIM3, TIM_TS_TI1FP1);`  
+`TIM_SelectSlaveMode(TIM3, TIM_SlaveMode_Reset);`  
+PWMI基本结构  
+![PWMI基本结构](img/PWMI基本结构.png)   
+`TIM_PWMIConfing(TIM3,&TIM_ICInitStructure);`自动把另一个通道初始化为相反配置  
+# 编码器接口 #
+编码器接口简介  
+![编码器接口](img/编码器接口.png)   
+正交编码器   
+![正交编码器](img/正交编码器.png)  
+旋转编码器  
+![旋转编码器](img/旋转编码器.png)   
+编码器接口基本结构  
+![编码器接口基本结构](img/编码器接口基本结构.png)    
+ARR设置为65535   
+正转CNT自增0,1,2.......65535   
+反转CNT自减65535,65534,65533......0  
+将该16位无符号数转换为16位有符号数即65535对应-1......以此读取出负数   
+工作模式  
+![工作模式](img/工作模式.png)  
+前两种模式计数精度低  
+实例  
+![实例](img/实例.png)    
+反相实例  
+![反相实例](img/反相实例.png)  
+TI1反相:反转TI1的高低电平(在边沿选择极性选择处加非门反转极性)  
+# ADC模数转换器 #
+ADC简介   
+![ADC简介](img/ADC简介.png)  
+逐次逼近型ADC   
+![逐次逼近型ADC](img/逐次逼近型ADC.png)   
+ADC框图   
+![ADC框图](img/ADC框图.png)   
+ADC基本结构   
+![ADC基本结构](img/ADC基本结构.png)  
+输入通道(对应的GPIO口)  
+![输入通道](img/输入通道.png)  
+规则通道  
+转换模式1  
+![转换模式1](img/转换模式1.png)  
+每触发一次后转换会停下来  
+只有第一个序列一位置有效退化为简单选择一个的方式  
+转换模式2  
+![转换模式2](img/转换模式2.png)   
+一次转换后不会停止而是立刻开启下一轮转换(只需最开始触发一次)  
+转换模式3  
+![转换模式3](img/转换模式3.png)  
+每触发一次后转换会停下来  
+依次对前七个位置进行转换结束后产生EOC信号转换结束  
+转换模式4   
+![转换模式4](img/转换模式4.png)   
+一次转换完成后不会停止而是立刻开启下一轮转换(只需最开始触发一次)
+触发控制  
+![触发控制](img/触发控制.png)   
+规则组触发源  
+数据对齐  
+![数据对齐](img/数据对齐.png)  
+一般右对齐   
+转换时间  
+![转换时间](img/转换时间.png)  
+校准  
+![校准](img/校准.png)  
+硬件电路  
+![硬件电路](img/硬件电路.png)   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
