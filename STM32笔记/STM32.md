@@ -237,13 +237,108 @@ ADC基本结构
 规则组触发源  
 数据对齐  
 ![数据对齐](img/数据对齐.png)  
-一般右对齐   
+一般右对齐  
+初始化ADC   
+`RCC_ADCCLKConfig(RCC_PCLK2_Div8);`设置时钟分频   
+`RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE);`打开ADC时钟   
+`ADC_InitTypeDef ADC_InitStructure;`定义ADC结构体   
+`ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;`独立模式   
+`ADC_InitStructure.ADC_ScanConvMode = ENABLE;`扫描模式    
+`ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;`连续转换模式    
+`ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;`外部触发源      
+`ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;`数据对齐     
+`ADC_InitStructure.ADC_NbrOfChannel = 1;`通道数    
+`ADC_Init(ADC1, &ADC_InitStructure);`初始化ADC    
 转换时间  
 ![转换时间](img/转换时间.png)  
 校准  
 ![校准](img/校准.png)  
+ADC校准   
+`ADC_ResetCalibration(ADC1);`重置校准   
+`ADC_StartCalibration(ADC1);`开始校准   
+`while(ADC_GetCalibrationStatus(ADC1));`等待校准结束  
+ADC转换  
+`ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_55Cycles5);`配置通道1   
+`ADC_SoftwareStartConvCmd(ADC1, ENABLE);`开始转换    
+`while(ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC) == RESET);`等待转换结束    
+`ADC_GetConversionValue(ADC1);`获取转换值   
 硬件电路  
 ![硬件电路](img/硬件电路.png)   
+DMA简介   
+![DMA简介](img/DMA简介.png)   
+存储器映像   
+![存储器映像](img/存储器映像.png)   
+ROM只读存储器是一种非易失性掉电不丢失的寄存器   
+REM是随机存储器是一种易失性掉电丢失的寄存器  
+DMA框图   
+![DMA框图](img/DMA框图.png)    
+DMA基本结构   
+![DMA基本结构](img/DMA基本结构.png)   
+DMA转运的条件  
+1.开关控制DMA_Cmd必须使能   
+2.传输计数器必须大于零   
+3.触发源(必须有触发信号)   
+DMA请求   
+![DMA请求](img/DMA请求.png)   
+表示基本结构中的触发部分   
+输出宽度与对齐  
+![输出宽度与对齐](img/输出宽度与对齐.png)    
+源端宽度小于目标宽度时补零   
+源端宽度大于目标宽度时舍弃高位  
+数据转运+DMA   
+![数据转运+DMA](img/数据转运+DMA.png)   
+ADC扫描模式+DMA   
+![ADC扫描模式+DMA](img/ADC扫描模式+DMA.png)   
+初始化DMA    
+`RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);`打开DMA时钟    
+`DMA_InitTypeDef DMA_InitStructure;`定义DMA结构体  
+`DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)ADC1_DR_Address;`外设基地址     
+`DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)&ADC_ConvertedValue;`内存基地址  
+`DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;`外设到内存    
+`DMA_InitStructure.DMA_BufferSize = 1;`缓冲区大小   
+`DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;`外设地址不增加    
+`DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;`内存地址增加    
+`DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;`外设数据宽度   
+`DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;`内存数据宽度    
+`DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;`循环模式     
+`DMA_InitStructure.DMA_Priority = DMA_Priority_High;`优先级   
+`DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;`内存到内存  
+`DMA_Init(DMA1_Channel1, &DMA_InitStructure);`初始化DMA  
+DMA使能      
+`DMA_Cmd(DMA1_Channel1, ENABLE);`使能DMA    
+# USART串口 #    
+通信接口   
+![通信接口](img/通信接口.png)   
+串口通信  
+![串口通信](img/串口通信.png)      
+串口硬件电路  
+![串口硬件电路](img/串口硬件电路.png)   
+电平标准   
+![电平标准](img/电平标准.png)    
+串口参数及时序   
+![串口参数及时序](img/串口参数及时序.png)    
+USART外设简介   
+![USART外设](img/USART外设.png)   
+USART基本结构   
+![USART基本结构](img/USART基本结构.png)   
+数据帧   
+![数据帧](img/数据帧.png)  
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
 
 
 
